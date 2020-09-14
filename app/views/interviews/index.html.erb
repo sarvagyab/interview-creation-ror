@@ -1,0 +1,7 @@
+
+<h1> <%= pluralize(@interviews.count,"Interview") %></h1>
+
+<%= link_to "Create New Interview", new_interview_path %> | 
+<%= link_to "List Users", users_path %> 
+
+<%= render @interviews %>

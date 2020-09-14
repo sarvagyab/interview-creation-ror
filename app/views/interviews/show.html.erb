@@ -1,0 +1,17 @@
+
+<h1>Interview Details</h1>
+<p>
+    <strong>Interview Name - </strong> <%= @interview.name %><br />
+    <p>
+        <strong>Interviewee id - </strong> <%= @interview.user_id %><br />
+    </p>
+    <p>
+        Interviewers id's - <br />
+        <% @interviewers.each do |person| %>
+            <p>
+                <strong>Interviewer Name - </strong><%= person.name %>
+            </p>
+        <% end %>
+    </p>
+
+</p>

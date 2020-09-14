@@ -1,0 +1,6 @@
+<p>
+    <strong>User name - </strong><%= user.name %>
+    <%= link_to "Show", user_path(user.id) %> | 
+    <%= link_to "Edit", edit_user_path(user.id) %> | 
+    <%= link_to "Delete", user_path(user.id), data: {method: :Delete, confirm: "All the interviews associated to this user will also be deleted. Are you sure you want to delete this user? "} %>
+</p>
