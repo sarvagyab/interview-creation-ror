@@ -13,8 +13,7 @@ class UsersController < ApplicationController
 
     def destroy
         user = User.find(params[:id])
-        if user.destroy
-        else
+        unless user.destroy
             flash[:errors] = user.errors.full_messages
         end
         redirect_to users_path

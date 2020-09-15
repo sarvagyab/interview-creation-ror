@@ -1,6 +1,15 @@
 
 <h1> <%= pluralize(@interviews.count,"Interview") %></h1>
 
+<div id="page">
+    <% if flash[:alert] %>
+      <p class="flash-error"><%= flash[:alert] %></p>
+    <% end %>
+    <% if flash[:notice] %>
+      <p class="flash-notice"><%= flash[:notice] %></p>
+    <% end %>
+</div>
+
 <%= link_to "Create New Interview", new_interview_path %> | 
 <%= link_to "List Users", users_path %> 
 

@@ -1,0 +1,42 @@
+<h1>Edit interivew</h1>
+
+<form method="post" action="<%=interview_path(@interview.id)%>">
+
+    <% if flash[:errors] %>
+        <% flash[:errors].each do |err| %>
+        <p class="flash-errors">
+            <%= err %>
+        </p>
+        <% end %>
+    <%end %>
+    
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+    <input type="hidden" name="_method" value="patch">
+
+    <label for="name">Name for the interview or sth you want to identify this with</label>
+    <input type="text" id="name" name="name" value="<%= @interview.name %>"><br />
+
+    <% @users.each do |user| %>
+
+    <input type="checkbox" name="interviewers[]" value="<%=user.id%>"
+    <% @interviewers.each do |interviewer| %>
+        <% if user.id == interviewer.id %>
+            checked
+        <%end%>
+    <%end%>
+    >
+    
+    <input type="radio" name="interviewee" value="<%=user.id%>"
+    <% if user.id == @interview.user_id %>
+        checked
+    <% end %>
+    >
+    
+    <label for="interviewers[<%=user.id%>]"><%=user.name%></label><br>
+    <%end%>
+    
+    
+    <p>
+        <input type="submit" value="Edit Interview">
+    </p>
+</form>
