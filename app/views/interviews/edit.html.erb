@@ -16,6 +16,20 @@
     <label for="name">Name for the interview or sth you want to identify this with</label>
     <input type="text" id="name" name="name" value="<%= @interview.name %>"><br />
 
+    <p>
+        <label for="sdate">Start Date</label>
+        <input type="date" id="sdate" name="start_date" value="<%=@interview.start_date%>"><br />
+    </p>
+    <p>
+        <label for="stime">Start Time</label>
+        <input type="time" id="etime" name="start_time" value="<%=@interview.start_time.to_s[11..15]%>"><br />
+    </p>
+    
+    <p>
+        <label for="etime">End Time</label>
+        <input type="time" id="etime" name="end_time" value="<%=@interview.end_time.to_s[11..15]%>"><br />
+    </p>
+
     <% @users.each do |user| %>
 
     <input type="checkbox" name="interviewers[]" value="<%=user.id%>"
