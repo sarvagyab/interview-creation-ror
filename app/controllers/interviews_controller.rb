@@ -60,6 +60,7 @@ class InterviewsController < ApplicationController
                     
                     @interview = Interview.find(params[:id])
                     InterviewMailer.editInterview(@interview).deliver_later!
+                    InterviewMailer.reminderInterview(@interview).deliver_later!(wait_until: @interview.start_time - 30.minutes)
 
                     # puts "editing mail sent"
                 rescue StandardError => err

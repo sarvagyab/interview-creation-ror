@@ -10,8 +10,10 @@ class InterviewMailer < ApplicationMailer
     @interview = interview
     @interviewee = interview.interviewee
     @interviewers = interview.takingInterviews
+    puts "this is the email we've been waiting for"
+    puts @interviewee.email
 
-    mail to: "sarvagya60@gmail.com", subject: "Your interview is scheduled with Interview Creators is Scheduled"
+    mail to: @interviewee.email, subject: "Your interview is scheduled with Interview Creators is Scheduled"
   end
 
 
@@ -20,7 +22,7 @@ class InterviewMailer < ApplicationMailer
     @interviewee = interview.interviewee
     @interviewers = interview.takingInterviews
 
-    mail to: "sarvagya60@gmail.com", subject: "REMINDER - Your interview is scheduled with Interview Creators is Scheduled"
+    mail to: @interviewee.email, subject: "REMINDER - Your interview is scheduled with Interview Creators is Scheduled"
   end
 
   def editInterview(interview)
@@ -28,7 +30,10 @@ class InterviewMailer < ApplicationMailer
     @interviewee = interview.interviewee
     @interviewers = interview.takingInterviews
 
-    mail to: "sarvagya60@gmail.com", subject: "RESCHEDULE - Your interview has been rescheduled"
+    puts "this is the email we've been waiting for"
+    puts @interviewee.email
+
+    mail to: @interviewee.email, subject: "RESCHEDULE - Your interview has been rescheduled"
   end
 
 

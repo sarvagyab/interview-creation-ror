@@ -1,4 +1,13 @@
 class Interview < ApplicationRecord
+
+  has_attached_file :resume, styles: { thumbnail: "60x60#" }
+  # validates_attachment :resume, content_type: "application/pdf"
+  validates_attachment_size :resume, less_than: 2.megabytes
+  validates_attachment_file_name :resume, matches: [/pdf\z/]
+  do_not_validate_attachment_file_type :resume
+
+
+
   has_many :interviewers
   # has_many :users, :through => :interviewers
   has_many :takingInterviews, class_name: 'User', :through => :interviewers, :source => 'user', :dependent => :destroy

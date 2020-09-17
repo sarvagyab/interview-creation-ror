@@ -4,11 +4,17 @@
 <form method="post" action="<%=users_path %>">
     <% if flash[:errors] %>
         <% flash[:errors].each do |err| %>
-            <%= err %>
+            <p><%= err %></p>
         <% end %>
     <%end %>
     <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
-    <label name="name">Name : </label>
-    <input type="text" name="name" id="name">
+    <p>
+        <label name="name">Name : </label>
+        <input type="text" name="name" id="name">
+    </p>
+    <p>
+        <label name="email">Email : </label>
+        <input type="text" name="email" id="email">
+    </p>
     <input type="submit" value="Create">
 </form>

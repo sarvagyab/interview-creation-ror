@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200917083807) do
+ActiveRecord::Schema.define(version: 20200917120611) do
 
   create_table "interviewers", force: :cascade do |t|
     t.integer "interview_id"
@@ -28,6 +28,10 @@ ActiveRecord::Schema.define(version: 20200917083807) do
     t.datetime "updated_at", null: false
     t.datetime "start_time"
     t.datetime "end_time"
+    t.string "resume_file_name"
+    t.string "resume_content_type"
+    t.bigint "resume_file_size"
+    t.datetime "resume_updated_at"
     t.index ["user_id"], name: "index_interviews_on_user_id"
   end
 
@@ -35,6 +39,7 @@ ActiveRecord::Schema.define(version: 20200917083807) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "email"
   end
 
 end

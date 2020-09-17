@@ -26,7 +26,7 @@ class UsersController < ApplicationController
 
     def update
         user = User.find(params[:id])
-        if user.update(name:params[:name])
+        if user.update(user_params)
             redirect_to users_path
         else
             flash[:errors] = @user.errors.full_messages
@@ -48,7 +48,7 @@ class UsersController < ApplicationController
 private
 
     def user_params
-        params.permit(:name)
+        params.permit(:name,:email)
     end
 
 end
