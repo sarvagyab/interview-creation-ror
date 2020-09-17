@@ -7,9 +7,21 @@ class InterviewsController < ApplicationController
     end
 
     def create
+        # fail
         if validateParams
                 
             if interviewUpdates(1)
+                @interview = Interview.last
+                @interviewee = @interview.interviewee
+                @interviewers = @interview.takingInterviews
+
+                begin
+                    # InterviewMailer.newInterview(@interview,@interviewee,@interviewers).deliver_later!
+                    # InterviewMailer.reminderInterview(@interview.@interviewee,@interviewers).deliver_later!()
+                rescue StandardError => err
+                    flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
+                end
+
                 flash[:notice] = "Successfully added the interview"
                 redirect_to :root
             else
@@ -145,12 +157,6 @@ private
         end
 
         
-        # if(@edate!=@sdate)
-        #     flash[:errors] = ["Dates for the interview should be on the same"]
-        #     return false
-        # end
-        
-
         if(@etime<=@stime)
             flash[:errors] = ["Start time should be less than end time"]
             return false
@@ -160,7 +166,7 @@ private
             if(params.has_key?(:id) && params[:id].present? && (params[:id].eql?inter.id.to_s))
                 next
             end
-            if intersectionTimings(@sdate,@stime,@etime,inter.start_date,inter.start_time,inter.end_time)
+            if intersectionTimings(@sdate,@stime,@etime,inter.start_time,inter.end_time)
                 flash[:errors] = ["Interviewee already scheduled for another interview at that time"]
                 return false
             end
@@ -171,7 +177,7 @@ private
                 if(params.has_key?(:id) && params[:id].present? && (params[:id].eql?inter.id.to_s))
                     next
                 end
-                if intersectionTimings(@sdate,@stime,@etime,inter.start_date,inter.start_time,inter.end_time)
+                if intersectionTimings(@sdate,@stime,@etime, inter.start_time,inter.end_time)
                     flash[:errors] = ["Interviewer #{person.name} already scheduled for another interview at that time"]
                     return false
                 end 
@@ -181,8 +187,11 @@ private
         return true
     end
 
-    def intersectionTimings(newDate,newStartTime,newEndTime, existingDate,existingStartTime,existingEndTime)
-        
+    def intersectionTimings(newDate,newStartTime,newEndTime, existingStartTime,existingEndTime)
+        existingStartTime = existingStartTime.localtime
+        existingEndTime = existingEndTime.localtime
+        existingDate = existingStartTime.localtime.to_s[0..9]
+
         if newDate.to_s.eql?existingDate.to_s
             existingStartTime = existingStartTime.to_s[11..15]
             existingEndTime = existingEndTime.to_s[11..15]
@@ -249,18 +258,22 @@ private
     end
 
     def acdrToInstruction(instruction)
+        processedStartTime = Time.local(params[:start_date][0..3], params[:start_date][5..6], params[:start_date][8..9], params[:start_time].to_s[0..1], params[:start_time].to_s[3..4])
+        processedEndTime = Time.local(params[:start_date][0..3], params[:start_date][5..6], params[:start_date][8..9], params[:end_time].to_s[0..1], params[:end_time].to_s[3..4])
+        
+        # puts(processedStartTime)
+        # puts(processedEndTime)
+        
         if instruction == 1
             return Interview.create!(
                 name: params[:name],user_id: params[:interviewee], 
-                start_date: params[:start_date],start_time: params[:start_time],
-                end_time: params[:end_time]
+                start_time: processedStartTime,end_time: processedEndTime
             )
         else
             interviewUpdate = Interview.find(params[:id])
             interviewUpdate.update!(
                 name: params[:name],user_id: params[:interviewee], 
-                start_date: params[:start_date],start_time: params[:start_time],
-                end_time: params[:end_time]
+                start_time: processedStartTime,end_time: processedEndTime
             )
             # check for error here too for exception later
             interviewUpdate.takingInterviews.delete_all

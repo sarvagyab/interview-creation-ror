@@ -4,6 +4,8 @@
     <strong>Interview Name - </strong> <%= @interview.name %><br />
     <p>
         <strong>Interviewee id - </strong> <%= @interview.user_id %><br />
+        <strong>Date - </strong> <%= @interview.start_time.localtime.to_s[0..9] %><br />
+        <strong>Timings - </strong> <%= @interview.start_time.localtime.to_s[11..15] %> - <%= @interview.end_time.localtime.to_s[11..15] %><br />
     </p>
     <p>
         Interviewers id's - <br />
