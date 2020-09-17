@@ -12,12 +12,14 @@ class InterviewsController < ApplicationController
                 
             if interviewUpdates(1)
                 @interview = Interview.last
-                @interviewee = @interview.interviewee
-                @interviewers = @interview.takingInterviews
 
                 begin
-                    # InterviewMailer.newInterview(@interview,@interviewee,@interviewers).deliver_later!
-                    # InterviewMailer.reminderInterview(@interview.@interviewee,@interviewers).deliver_later!()
+                    puts "sending mail now"
+                    
+                    InterviewMailer.newInterview(@interview).deliver_later!
+                    InterviewMailer.reminderInterview(@interview).deliver_later!(wait_until: @interview.start_time - 30.minutes)
+
+                    puts "mail sent"
                 rescue StandardError => err
                     flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
                 end
