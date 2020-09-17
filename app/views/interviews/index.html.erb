@@ -8,6 +8,11 @@
     <% if flash[:notice] %>
       <p class="flash-notice"><%= flash[:notice] %></p>
     <% end %>
+    <% if flash[:errors] %>
+      <% flash[:errors].each do |err| %>
+      <p class='flash-errors'><%= err %></p>
+      <% end %>
+    <% end %>
 </div>
 
 <%= link_to "Create New Interview", new_interview_path %> | 

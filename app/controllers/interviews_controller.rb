@@ -22,6 +22,7 @@ class InterviewsController < ApplicationController
                     puts "mail sent"
                 rescue StandardError => err
                     flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
+                    redirect_to :root
                 end
 
                 flash[:notice] = "Successfully added the interview"
@@ -53,6 +54,19 @@ class InterviewsController < ApplicationController
     def update
         if validateParams  
             if interviewUpdates(0)
+                
+                begin
+                    # puts "editing sending mail now"
+                    
+                    @interview = Interview.find(params[:id])
+                    InterviewMailer.editInterview(@interview).deliver_later!
+
+                    # puts "editing mail sent"
+                rescue StandardError => err
+                    flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
+                    redirect_to :root
+                end
+
                 flash[:notice] = "Successfully edited the interview"
                 redirect_to :root
             else

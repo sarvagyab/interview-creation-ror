@@ -23,4 +23,13 @@ class InterviewMailer < ApplicationMailer
     mail to: "sarvagya60@gmail.com", subject: "REMINDER - Your interview is scheduled with Interview Creators is Scheduled"
   end
 
+  def editInterview(interview)
+    @interview = interview
+    @interviewee = interview.interviewee
+    @interviewers = interview.takingInterviews
+
+    mail to: "sarvagya60@gmail.com", subject: "RESCHEDULE - Your interview has been rescheduled"
+  end
+
+
 end
