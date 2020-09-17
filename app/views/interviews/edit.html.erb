@@ -1,6 +1,6 @@
 <h1>Edit interivew</h1>
 
-<form method="post" action="<%=interview_path(@interview.id)%>">
+<form method="post" action="<%=interview_path(@interview.id)%>" enctype='multipart/form-data'>
 
     <% if flash[:errors] %>
         <% flash[:errors].each do |err| %>
@@ -13,7 +13,7 @@
     <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
     <input type="hidden" name="_method" value="patch">
 
-    <label for="name">Name for the interview or sth you want to identify this with</label>
+    <label for="name">Designation</label>
     <input type="text" id="name" name="name" value="<%= @interview.name %>"><br />
 
     <p>
@@ -28,6 +28,11 @@
     <p>
         <label for="etime">End Time</label>
         <input type="time" id="etime" name="end_time" value="<%=@interview.end_time.localtime.to_s[11..15]%>"><br />
+    </p>
+
+    <p>
+        <label for="resume">Attach Resume (Optional)</label>
+        <input type="file" accept="application/pdf" id="resume" name="resume"><br />
     </p>
 
     <% @users.each do |user| %>

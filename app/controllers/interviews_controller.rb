@@ -43,6 +43,7 @@ class InterviewsController < ApplicationController
     def show
         @interview = Interview.find(params[:id])
         @interviewers = @interview.takingInterviews
+        @interviewee = @interview.interviewee
     end
 
     def edit
@@ -81,7 +82,19 @@ class InterviewsController < ApplicationController
 
     def destroy
         interview = Interview.find(params[:id])
+        @name = interview.interviewee.name
+        @email = interview.interviewee.email
+        @start_time = interview.start_time
         if interview.destroy
+            if(@start_time.localtime>Time.now)
+                begin
+                    InterviewMailer.deleteInterview(@name,@email).deliver_later!
+                rescue StandardError => err
+                    flash[:errors] = "Sorry we could not send interviewee notification email but the interview has been scheduled."
+                    redirect_to :root       
+                end
+            end
+
             flash[:notice] = "Deleted interview successfully"
         else
             flash[:errors] = interview.errors.full_messages
@@ -114,7 +127,7 @@ private
 
     def validateName
         if(params[:name].length < 3)
-            flash[:errors] = ["Name should have at least 3 letters"]
+            flash[:errors] = ["Designation should have at least 3 letters"]
             return false
         end
         return true
@@ -266,9 +279,9 @@ private
         rescue  ActiveRecord::RecordInvalid => invalid
             flash[:errors] = invalid.record.errors
             return false
-        rescue StandardError => error
-            flash[:errors] = ["Sorry some interval server error has prevented the interview from being created. We are looking into it. Thank you for your patience."]
-            return false
+        # rescue StandardError => error
+        #     flash[:errors] = ["Sorry some interval server error has prevented the interview from being created. We are looking into it. Thank you for your patience."]
+        #     return false
         end
 
         return true
@@ -284,7 +297,7 @@ private
         if instruction == 1
             return Interview.create!(
                 name: params[:name],user_id: params[:interviewee], 
-                start_time: processedStartTime,end_time: processedEndTime
+                start_time: processedStartTime,resume: params[:resume],end_time: processedEndTime
             )
         else
             interviewUpdate = Interview.find(params[:id])
@@ -292,6 +305,11 @@ private
                 name: params[:name],user_id: params[:interviewee], 
                 start_time: processedStartTime,end_time: processedEndTime
             )
+
+            if(params.has_key?(:resume) && params[:resume].present?)
+                interviewUpdate.update!(resume:params[:resume])
+            end
+
             # check for error here too for exception later
             interviewUpdate.takingInterviews.delete_all
             return interviewUpdate

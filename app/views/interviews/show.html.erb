@@ -1,19 +1,24 @@
 
 <h1>Interview Details</h1>
 <p>
-    <strong>Interview Name - </strong> <%= @interview.name %><br />
     <p>
-        <strong>Interviewee id - </strong> <%= @interview.user_id %><br />
+        <strong>Designation - </strong> <%= @interview.name %><br />
+        <strong>Interviewee Name - </strong> <%= @interviewee.name %>
+        <% if @interview.resume.present? %>
+            <strong><a href="<%= @interview.resume.url%>">Resume</a></strong>
+        <% end %><br/>
         <strong>Date - </strong> <%= @interview.start_time.localtime.to_s[0..9] %><br />
         <strong>Timings - </strong> <%= @interview.start_time.localtime.to_s[11..15] %> - <%= @interview.end_time.localtime.to_s[11..15] %><br />
     </p>
     <p>
-        Interviewers id's - <br />
+        <strong>Interviewers' Names - </strong><br />
+        <ul>
         <% @interviewers.each do |person| %>
             <p>
-                <strong>Interviewer Name - </strong><%= person.name %>
+                <li><%= person.name %></li>
             </p>
         <% end %>
+        </ul>
     </p>
 
 </p>

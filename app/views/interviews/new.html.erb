@@ -1,6 +1,6 @@
 <h1>Create a new interivew</h1>
 
-<form method="post" action="<%=interviews_path%>">
+<form method="post" action="<%=interviews_path%>" enctype='multipart/form-data'>
     <% if flash[:errors] %>
         <% flash[:errors].each do |err| %>
         <p class="flash-errors">
@@ -10,7 +10,7 @@
     <%end %>
 
     <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
-    <label for="name">Name for the interview or sth you want to identify this with</label>
+    <label for="name">Designation</label>
     <input type="text" id="name" name="name"><br />
 
     <p>
@@ -25,6 +25,11 @@
     <p>
         <label for="etime">End Time</label>
         <input type="time" id="etime" name="end_time"><br />
+    </p>
+
+    <p>
+        <label for="resume">Attach Resume (Optional)</label>
+        <input type="file" accept="application/pdf" id="resume" name="resume"><br />
     </p>
 
     <% @users.each do |user| %>
