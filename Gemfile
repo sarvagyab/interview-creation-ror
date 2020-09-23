@@ -8,6 +8,7 @@ end
 gem 'sidekiq', '5.2.9'
 gem 'sinatra'
 gem 'kt-paperclip', '~> 6.2', '>= 6.2.2'
+gem 'rack-cors'
 
 gem 'hirb'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

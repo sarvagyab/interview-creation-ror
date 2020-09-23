@@ -8,98 +8,142 @@ class InterviewsController < ApplicationController
 
     def create
         # fail
-        if validateParams
+        respond_to do |format|
+
+            if validateParams
                 
-            if interviewUpdates(1)
-                @interview = Interview.last
-
-                begin
-                    puts "sending mail now"
+                if interviewUpdates(1)
+                    @interview = Interview.last
                     
-                    InterviewMailer.newInterview(@interview).deliver_later!
-                    InterviewMailer.reminderInterview(@interview).deliver_later!(wait_until: @interview.start_time - 30.minutes)
-
-                    puts "mail sent"
-                rescue StandardError => err
-                    flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
-                    redirect_to :root
+                    begin
+                        puts "sending mail now"
+                        
+                        InterviewMailer.newInterview(@interview).deliver_later!
+                        InterviewMailerJob.set(wait_until: @interview.start_time - 30.minutes).perform_later(@interview.id)
+                        # InterviewMailer.reminderInterview(@interview).deliver_later!(wait_until: @interview.start_time - 30.minutes)
+                        
+                        puts "mail sent"
+                    rescue StandardError => err
+                        flash[:errors] = ["Sorry we could not send you the confirmation email but your interview has been scheduled."]
+                        format.html{redirect_to :root}
+                        format.json{render json: {errors: flash[:errors]}}
+                        # redirect_to :root
+                    end
+                    
+                    flash[:notice] = "Successfully added the interview"
+                    format.html{ redirect_to :root }
+                    format.json{ render json: { notice: flash[:notice]}}
+                    
+                else
+                    # flash[:errors] = ["Could not add the interview"]
+                    format.html {redirect_to new_interview_path}
+                    format.json {render json: {errors: flash[:errors]}}
                 end
-
-                flash[:notice] = "Successfully added the interview"
-                redirect_to :root
             else
-                # flash[:errors] = ["Could not add the interview"]
-                redirect_to new_interview_path
+                format.html{redirect_to new_interview_path}
+                format.json {render json: {errors: flash[:errors]}}
             end
-        else
-            redirect_to new_interview_path
         end
     end
-
+    
     def index 
         @interviews = Interview.all
+        # @interviews.each do |key,val|
+        #     puts key.to_json
+        #     puts val
+        #     puts "end ing "
+        # end
+        respond_to do |format|
+            format.html
+            format.json{ render json: @interviews}
+        end
     end
 
     def show
         @interview = Interview.find(params[:id])
         @interviewers = @interview.takingInterviews
         @interviewee = @interview.interviewee
+        respond_to do |format|
+            format.html
+            format.json{ render json: {interview:@interview,interviewee:@interviewee,interviewers:@interviewers}}
+        end
     end
 
     def edit
         @interview = Interview.find(params[:id])
         @users = User.all
         @interviewers = @interview.takingInterviews
+        respond_to do |format|
+            format.html
+            format.json {render json: {interview:@interview,users:@users,interviewers:@interviewers}}
+        end
     end
 
     def update
-        if validateParams  
-            if interviewUpdates(0)
-                
-                begin
-                    # puts "editing sending mail now"
+        respond_to do |format|
+            if validateParams  
+                if interviewUpdates(0)
                     
-                    @interview = Interview.find(params[:id])
-                    InterviewMailer.editInterview(@interview).deliver_later!
-                    InterviewMailer.reminderInterview(@interview).deliver_later!(wait_until: @interview.start_time - 30.minutes)
+                    begin
+                        # puts "editing sending mail now"
+                        
+                        @interview = Interview.find(params[:id])
+                        InterviewMailer.editInterview(@interview).deliver_later!
+                        InterviewMailerJob.set(wait_until: @interview.start_time - 30.minutes).perform_later(@interview.id)
 
-                    # puts "editing mail sent"
-                rescue StandardError => err
-                    flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
-                    redirect_to :root
+                        # InterviewMailer.reminderInterview(@interview).deliver_later!(wait_until: @interview.start_time - 30.minutes)
+    
+                        # puts "editing mail sent"
+                    rescue StandardError => err
+                        flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
+                        format.html{redirect_to :root}
+                        format.json{render json:{errors:flash[:errors]}}
+                    end
+    
+                    flash[:notice] = "Successfully edited the interview"
+                    format.json{render json: {notice:flash[:notice]}}
+                    format.html{redirect_to :root}
+                else
+                    # flash[:errors] = ["Could not add the interview"]
+                    format.html{redirect_to edit_interview_path(params[:id])}
+                    format.json{render json:{errors:flash[:errors]}}
+                    # redirect_to edit_interview_path(params[:id])
                 end
-
-                flash[:notice] = "Successfully edited the interview"
-                redirect_to :root
             else
-                # flash[:errors] = ["Could not add the interview"]
-                redirect_to edit_interview_path(params[:id])
+                format.html{redirect_to edit_interview_path(params[:id])}
+                format.json{render json:{errors:flash[:errors]}}
+                # redirect_to edit_interview_path(params[:id])
             end
-        else
-            redirect_to edit_interview_path(params[:id])
         end
     end
 
     def destroy
-        interview = Interview.find(params[:id])
-        @name = interview.interviewee.name
-        @email = interview.interviewee.email
-        @start_time = interview.start_time
-        if interview.destroy
-            if(@start_time.localtime>Time.now)
-                begin
-                    InterviewMailer.deleteInterview(@name,@email).deliver_later!
-                rescue StandardError => err
-                    flash[:errors] = "Sorry we could not send interviewee notification email but the interview has been scheduled."
-                    redirect_to :root       
-                end
-            end
+        # fail
+        respond_to do |format|
 
-            flash[:notice] = "Deleted interview successfully"
-        else
-            flash[:errors] = interview.errors.full_messages
+            interview = Interview.find(params[:id])
+            @name = interview.interviewee.name
+            @email = interview.interviewee.email
+            @start_time = interview.start_time
+            if interview.destroy
+                if(@start_time.localtime>Time.now)
+                    begin
+                        InterviewMailer.deleteInterview(@name,@email).deliver_later!
+                    rescue StandardError => err
+                        flash[:errors] = "Sorry we could not send interviewee notification email but the interview has been scheduled."
+                        format.html{redirect_to :root}
+                        format.json{render json:{errors:flash[:errors]}}
+                    end
+                end
+                
+                flash[:notice] = "Deleted interview successfully"
+                format.json{render json: {notice:flash[:notice]}}
+            else
+                flash[:errors] = interview.errors.full_messages
+                format.json{render json: {errors: flash[:erorrs]}}
+            end
+            format.html{redirect_to :root}
         end
-        redirect_to :root
     end
 
 
