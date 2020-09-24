@@ -1,0 +1,43 @@
+<h1>Create a new interivew</h1>
+
+<form method="post" action="<%=interviews_path%>" enctype='multipart/form-data'>
+    <% if flash[:errors] %>
+        <% flash[:errors].each do |err| %>
+        <p class="flash-errors">
+            <%= err %>
+        </p>
+        <% end %>
+    <%end %>
+
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+    <label for="name">Designation</label>
+    <input type="text" id="name" name="name"><br />
+
+    <p>
+        <label for="sdate">Start Date</label>
+        <input type="date" id="sdate" name="start_date"><br />
+    </p>
+    <p>
+        <label for="stime">Start Time</label>
+        <input type="time" id="etime" name="start_time"><br />
+    </p>
+    
+    <p>
+        <label for="etime">End Time</label>
+        <input type="time" id="etime" name="end_time"><br />
+    </p>
+
+    <p>
+        <label for="resume">Attach Resume (Optional)</label>
+        <input type="file" accept="application/pdf" id="resume" name="resume"><br />
+    </p>
+
+    <% @users.each do |user| %>
+    <input type="checkbox" name="interviewers[]" value="<%=user.id%>">
+    <input type="radio" name="interviewee" value="<%=user.id%>">
+    <label for="interviewers[<%=user.id%>]"><%=user.name%></label><br>
+    <%end%>
+    <p>
+        <input type="submit" value="Create Interview">
+    </p>
+</form>

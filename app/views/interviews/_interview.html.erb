@@ -1,0 +1,12 @@
+
+<h4>Interview - </h4>
+<p>
+    <strong>Designation - </strong> <%= interview.name %><br />
+    <strong>Interviewee Name - </strong> <%= interview.interviewee.name %><br />
+    <strong>Date - </strong> <%= interview.start_time.localtime.to_s[0..9] %><br />
+    <strong>Timings - </strong> <%= interview.start_time.localtime.to_s[11..15] %> - <%= interview.end_time.localtime.to_s[11..15] %><br />
+</p>
+    <%= link_to "Show", interview_path(interview.id) %> | 
+    <%= link_to "Edit", edit_interview_path(interview.id) %> | 
+    <%= link_to "Delete", interview_path(interview.id), data: {method: :Delete, confirm: "Are you sure you want to delete this interview?"} %>
+</p>

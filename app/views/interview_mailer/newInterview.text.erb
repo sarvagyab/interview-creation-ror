@@ -1,0 +1,15 @@
+Interview Scheduled
+
+
+Hi <%= @interviewee.name %>, you have an appointment scheduled now. The details are as follows - 
+
+
+
+Name: <%=@interviewee.name %>
+Date: <%=@interview.start_time.localtime.to_s[0..9] %>
+Timings: <%=@interview.start_time.localtime.to_s[11..15] %> - <%=@interview.end_time.localtime.to_s[11..15] %>
+Interviewers: 
+<% @interviewers.each do |inter| %>
+<%=inter.name%>
+<% end %>
+

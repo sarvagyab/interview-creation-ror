@@ -1,0 +1,19 @@
+<h1>Reminder Mail </h1>
+
+<h1>Interview Scheduled</h1>
+
+<p>
+  Hi <strong><%= @interviewee.name %></strong>, you have an appointment scheduled now. The details are as follows - 
+</p>
+
+<p>
+  <strong>Name: </strong><%=@interviewee.name %><br/>
+  <strong>Date: </strong><%=@interview.start_time.localtime.to_s[0..9] %><br/>
+  <strong>Timings: </strong><%=@interview.start_time.localtime.to_s[11..15] %> - <%=@interview.end_time.localtime.to_s[11..15] %><br/>
+  <strong>Interviewers: </strong><br/>
+  <ul>
+    <% @interviewers.each do |inter| %>
+    <li><%=inter.name%></li>
+    <% end %>
+  </ul>
+</p>
