@@ -21,10 +21,26 @@ class UsersController < ApplicationController
 
     def destroy
         user = User.find(params[:id])
-        unless user.destroy
-            flash[:errors] = user.errors.full_messages
+        takingInters = user.takingInterviews
+
+        takingInters.each do |inter|
+            if(inter.takingInterviews.length() == 1)
+                unless inter.destroy
+                    flash[:errors] = ["Could not delete all interviews with only this user as interviewer due to following reasons"] + inter.errors.full_messages
+                end
+            end
         end
-        redirect_to users_path
+
+        respond_to do |format|
+            if user.destroy
+                flash[:notice] = "User successfully deleted"
+                format.json{render json:{notice:flash[:notice],errors:flash[:errors]}}
+            else
+                flash[:errors] += user.errors.full_messages
+                format.json{ render json:{errors:flash[:errors]},status: :not_acceptable}    
+            end
+            format.html{redirect_to users_path}
+        end
     end
 
     def edit
@@ -34,22 +50,32 @@ class UsersController < ApplicationController
 
     def update
         user = User.find(params[:id])
-        if user.update(user_params)
-            redirect_to users_path
-        else
-            flash[:errors] = @user.errors.full_messages
-            redirect_to edit_user_path(params[:id])
+        respond_to do |format|
+            if user.update(user_params)
+                flash[:notice] = "User Details Successfully Updated"
+                format.html{redirect_to users_path}
+                format.json{render json:{notice:flash[:notice]}}
+            else
+                flash[:errors] = user.errors.full_messages
+                format.html{redirect_to edit_user_path(params[:id])}
+                format.json{render json:{errors:flash[:errors]}, status: :not_acceptable};
+            end
         end
     end
 
 
     def create 
         @user = User.new(user_params)
-        if (@user.save)
-            redirect_to users_path
-        else
-            flash[:errors] = @user.errors.full_messages
-            redirect_to new_user_path
+        respond_to do |format|
+            if (@user.save)
+                flash[:notice] = "User successfully added";
+                format.html{ redirect_to users_path}
+                format.json{ render json: { notice: flash[:notice]}}
+            else
+                flash[:errors] = @user.errors.full_messages
+                format.html{ redirect_to new_user_path }
+                format.json{ render json: {errors: flash[:errors]},status: :not_acceptable}
+            end
         end
     end
 

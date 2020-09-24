@@ -25,34 +25,26 @@ class InterviewsController < ApplicationController
                         puts "mail sent"
                     rescue StandardError => err
                         flash[:errors] = ["Sorry we could not send you the confirmation email but your interview has been scheduled."]
-                        format.html{redirect_to :root}
-                        format.json{render json: {errors: flash[:errors]}}
-                        # redirect_to :root
                     end
                     
                     flash[:notice] = "Successfully added the interview"
                     format.html{ redirect_to :root }
-                    format.json{ render json: { notice: flash[:notice]}}
+                    format.json{ render json: { notice: flash[:notice], errors: flash[:errors]}}
                     
                 else
                     # flash[:errors] = ["Could not add the interview"]
                     format.html {redirect_to new_interview_path}
-                    format.json {render json: {errors: flash[:errors]}}
+                    format.json {render json: {errors: flash[:errors]}, status: :not_acceptable}
                 end
             else
                 format.html{redirect_to new_interview_path}
-                format.json {render json: {errors: flash[:errors]}}
+                format.json {render json: {errors: flash[:errors]}, status: :not_acceptable}
             end
         end
     end
     
     def index 
         @interviews = Interview.all
-        # @interviews.each do |key,val|
-        #     puts key.to_json
-        #     puts val
-        #     puts "end ing "
-        # end
         respond_to do |format|
             format.html
             format.json{ render json: @interviews}
@@ -63,9 +55,12 @@ class InterviewsController < ApplicationController
         @interview = Interview.find(params[:id])
         @interviewers = @interview.takingInterviews
         @interviewee = @interview.interviewee
+        @resumeURL = (@interview.resume.present?) ? "http://localhost:3000"+@interview.resume.url : nil
+        # @resumeURL = @interview.resume.url
+
         respond_to do |format|
             format.html
-            format.json{ render json: {interview:@interview,interviewee:@interviewee,interviewers:@interviewers}}
+            format.json{ render json: {interview:@interview,interviewee:@interviewee,interviewers:@interviewers,resume: @resumeURL}}
         end
     end
 
@@ -95,23 +90,21 @@ class InterviewsController < ApplicationController
     
                         # puts "editing mail sent"
                     rescue StandardError => err
-                        flash[:errors] = "Sorry we could not send you the confirmation email but your interview has been scheduled."
-                        format.html{redirect_to :root}
-                        format.json{render json:{errors:flash[:errors]}}
+                        flash[:errors] = ["Sorry we could not send you the confirmation email but your interview has been scheduled."]
                     end
     
                     flash[:notice] = "Successfully edited the interview"
-                    format.json{render json: {notice:flash[:notice]}}
-                    format.html{redirect_to :root}
+                    format.html{ redirect_to :root }
+                    format.json{ render json: { notice: flash[:notice], errors: flash[:errors]}}
                 else
                     # flash[:errors] = ["Could not add the interview"]
                     format.html{redirect_to edit_interview_path(params[:id])}
-                    format.json{render json:{errors:flash[:errors]}}
+                    format.json{render json:{errors:flash[:errors]}, status: :not_acceptable}
                     # redirect_to edit_interview_path(params[:id])
                 end
             else
                 format.html{redirect_to edit_interview_path(params[:id])}
-                format.json{render json:{errors:flash[:errors]}}
+                format.json{render json:{errors:flash[:errors]},status: :not_acceptable}
                 # redirect_to edit_interview_path(params[:id])
             end
         end
@@ -130,17 +123,16 @@ class InterviewsController < ApplicationController
                     begin
                         InterviewMailer.deleteInterview(@name,@email).deliver_later!
                     rescue StandardError => err
-                        flash[:errors] = "Sorry we could not send interviewee notification email but the interview has been scheduled."
-                        format.html{redirect_to :root}
-                        format.json{render json:{errors:flash[:errors]}}
+                        flash[:errors] = ["Sorry we could not send interviewee notification email but the interview has been deleted."]
                     end
                 end
                 
                 flash[:notice] = "Deleted interview successfully"
-                format.json{render json: {notice:flash[:notice]}}
+                format.html{redirect_to :root}
+                format.json{render json: {notice:flash[:notice], errors:flash[:errors]}}
             else
                 flash[:errors] = interview.errors.full_messages
-                format.json{render json: {errors: flash[:erorrs]}}
+                format.json{render json: {errors: flash[:erorrs]},status: :not_acceptable}
             end
             format.html{redirect_to :root}
         end
@@ -163,7 +155,7 @@ private
                 return false
             end
         else
-            flash[:errors] = ["Please fill all fields completely"]
+            flash[:errors] = ["Please fill all fields completely",params]
             return false
         end
         return true
@@ -260,6 +252,35 @@ private
         
         return true
     end
+
+#FIX BUG
+    # def CHECKAPERSON(person)
+    #     userToCheck = User.find(person)
+    #     checker = User.find(params[:interviewee]).givingInterviews + User.find(params[:interviewee]).takingInterviews
+        
+    #     checker.each do |inter|
+    #         if(params.has_key?(:id) && params[:id].present? && (params[:id].eql?inter.id.to_s))
+    #             next
+    #         end
+    #         if intersectionTimings(@sdate,@stime,@etime,inter.start_time,inter.end_time)
+    #             flash[:errors] = ["Interviewee already scheduled for another interview at that time"]
+    #             return [false,checker.name]
+    #         end
+    #     end
+    # end
+
+    # def TIMINGSNEW
+    #     checker = User.find(params[:interviewee]).givingInterviews + User.find(params[:interviewee]).takingInterviews
+    #     checker.each do |inter|
+    #         if(params.has_key?(:id) && params[:id].present? && (params[:id].eql?inter.id.to_s))
+    #             next
+    #         end
+    #         if intersectionTimings(@sdate,@stime,@etime,inter.start_time,inter.end_time)
+    #             flash[:errors] = ["Interviewee already scheduled for another interview at that time"]
+    #             return false
+    #         end
+    #     end
+    # end
 
     def intersectionTimings(newDate,newStartTime,newEndTime, existingStartTime,existingEndTime)
         existingStartTime = existingStartTime.localtime
